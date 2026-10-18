@@ -1,0 +1,32 @@
+{
+  "name": "voluntariado-backend",
+  "version": "1.0.0",
+  "description": "API de voluntariado do IFRS (Node.js, Express, MySQL, JWT)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "node --test",
+    "test:api": "node scripts/api-check.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.12.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
+  }
+}

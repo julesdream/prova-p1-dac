@@ -1,0 +1,190 @@
+# Requisições de exemplo (extensão REST Client do VS Code)
+# 1) Suba o back-end (npm run dev em /backend)
+# 2) Rode "Login como admin" primeiro: o token é guardado na variável @token
+
+@baseUrl = http://localhost:3000
+
+### ---------- AUTH ----------
+
+### Login como admin
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@ifrs.edu.br",
+  "password": "123456"
+}
+
+###
+@token = {{login.response.body.$.token}}
+
+### Login como usuário comum (role = user)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@ifrs.edu.br",
+  "password": "123456"
+}
+
+### Login inválido (esperado: 401)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@ifrs.edu.br",
+  "password": "senha-errada"
+}
+
+### Cadastrar novo usuário (role "user"; repetir dá 409)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "novo@ifrs.edu.br",
+  "password": "senha123"
+}
+
+### Cadastro com senha curta (esperado: 400)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "outro@ifrs.edu.br",
+  "password": "123"
+}
+
+### ---------- DASHBOARD (protegida) ----------
+
+### Dashboard com token (esperado: 200)
+GET {{baseUrl}}/dashboard
+Authorization: Bearer {{token}}
+
+### Dashboard sem token (esperado: 401)
+GET {{baseUrl}}/dashboard
+
+### ---------- EVENTOS ----------
+
+### Listar eventos (campo "enrolled" = total de inscritos)
+GET {{baseUrl}}/events
+Authorization: Bearer {{token}}
+
+### Buscar evento por id
+GET {{baseUrl}}/events/1
+Authorization: Bearer {{token}}
+
+### Criar evento (somente admin)
+POST {{baseUrl}}/events
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Campanha do Agasalho",
+  "description": "Arrecadação de roupas de inverno",
+  "event_date": "2026-12-15",
+  "location": "Hall de entrada",
+  "max_volunteers": 2
+}
+
+### Criar evento com dados faltando (esperado: 400)
+POST {{baseUrl}}/events
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "Sem título, data e local"
+}
+
+### Criar evento com data inválida (esperado: 400)
+POST {{baseUrl}}/events
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Evento com data errada",
+  "event_date": "31/12/2026",
+  "location": "Ginásio"
+}
+
+### Atualizar evento
+PUT {{baseUrl}}/events/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Doação de Sangue (atualizado)",
+  "description": "Parceria com o hemocentro",
+  "event_date": "2026-11-11",
+  "location": "Ginásio do IFRS",
+  "max_volunteers": 3
+}
+
+### Excluir evento
+DELETE {{baseUrl}}/events/3
+Authorization: Bearer {{token}}
+
+### ---------- INSCRIÇÕES EM EVENTOS ----------
+
+### Listar voluntários inscritos no evento 1
+GET {{baseUrl}}/events/1/volunteers
+Authorization: Bearer {{token}}
+
+### Inscrever voluntário no evento (regra: respeita max_volunteers; lotado = 409)
+POST {{baseUrl}}/events/1/volunteers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "volunteer_id": 2
+}
+
+### Cancelar inscrição (somente admin)
+DELETE {{baseUrl}}/events/1/volunteers/2
+Authorization: Bearer {{token}}
+
+### ---------- VOLUNTÁRIOS ----------
+
+### Listar voluntários
+GET {{baseUrl}}/volunteers
+Authorization: Bearer {{token}}
+
+### Buscar voluntário por id
+GET {{baseUrl}}/volunteers/1
+Authorization: Bearer {{token}}
+
+### Criar voluntário (somente admin)
+POST {{baseUrl}}/volunteers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Diego Alves",
+  "email": "diego@email.com",
+  "phone": "54999990004"
+}
+
+### Criar voluntário com e-mail inválido (esperado: 400)
+POST {{baseUrl}}/volunteers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Sem e-mail válido",
+  "email": "isso-nao-e-email"
+}
+
+### Atualizar voluntário
+PUT {{baseUrl}}/volunteers/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Ana Souza Silva",
+  "email": "ana@email.com",
+  "phone": "54999990001"
+}
+
+### Excluir voluntário
+DELETE {{baseUrl}}/volunteers/4
+Authorization: Bearer {{token}}
